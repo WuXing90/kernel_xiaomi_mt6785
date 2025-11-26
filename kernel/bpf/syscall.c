@@ -694,10 +694,17 @@ static int map_lookup_elem(union bpf_attr *attr)
 			goto err_put;
 		}
 	} else {
-		key = memdup_user(ukey, map->key_size);
-		if (IS_ERR(key)) {
-			err = PTR_ERR(key);
+		if (map->key_size <= sizeof(key_onstack)) {
+		key = key_onstack;
+		if (copy_from_user(key, ukey, map->key_size)) {
+			err = -EFAULT;
 			goto err_put;
+		}
+	} else {
+	   key = memdup_user(ukey, map->key_size);
+	   if (IS_ERR(key)) {
+	       err = PTR_ERR(key);
+		   goto err_put;
 		}
 	}
 
@@ -817,10 +824,17 @@ static int map_update_elem(union bpf_attr *attr)
 			goto err_put;
 		}
 	} else {
-		key = memdup_user(ukey, map->key_size);
-		if (IS_ERR(key)) {
-			err = PTR_ERR(key);
+		if (map->key_size <= sizeof(key_onstack)) {
+		key = key_onstack;
+		if (copy_from_user(key, ukey, map->key_size)) {
+			err = -EFAULT;
 			goto err_put;
+		}
+	} else {
+	   key = memdup_user(ukey, map->key_size);
+	   if (IS_ERR(key)) {
+		    err = PTR_ERR(key);
+		    goto err_put;
 		}
 	}
 
