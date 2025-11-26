@@ -71,25 +71,25 @@ static void mdw_sched_met_end(struct mdw_apu_sc *sc, struct mdw_dev_info *d,
 static void mdw_sched_trace(struct mdw_apu_sc *sc,
 	struct mdw_dev_info *d, struct apusys_cmd_hnd *h, int ret, int done)
 {
-	char state[16];
-
-	/* prefix */
-	memset(state, 0, sizeof(state));
-	if (!done) {
-		mdw_sched_met_start(sc, d);
-		if (snprintf(state, sizeof(state)-1, "start :") < 0)
-			return;
-	} else {
-		mdw_sched_met_end(sc, d, ret);
-		if (ret) {
-			if (snprintf(state, sizeof(state)-1, "fail :") < 0)
-				return;
-		} else {
-			if (snprintf(state, sizeof(state)-1, "done :") < 0)
-				return;
-		}
-	}
-
+    char state[16];
+    struct mdw_cmd_params params;  
+ 
+     memset(state, 0, sizeof(state));
+     if (!done) {
+         mdw_sched_met_start(sc, d);
+         if (snprintf(state, sizeof(state)-1, "start :") < 0)
+             return;
+     } else {
+         mdw_sched_met_end(sc, d, ret);
+         if (ret) {
+             if (snprintf(state, sizeof(state)-1, "fail :") < 0)
+                 return;
+         } else {
+             if (snprintf(state, sizeof(state)-1, "done :") < 0)
+                 return;
+         }
+     }
+	
 	/* if err, use mdw_drv_err */
 	if (ret) {
 		mdw_drv_err("%s"MDW_EXEC_PRINT" ret(%d)\n",
@@ -153,34 +153,34 @@ static void mdw_sched_trace(struct mdw_apu_sc *sc,
 			ret);
 	}
 
-	/* trace cmd end */
-	trace_mdw_cmd(done,
-		sc->parent->pid,
-		sc->parent->tgid,
-		sc->parent->hdr->uid,
-		sc->parent->kid,
-		sc->idx,
-		sc->parent->hdr->num_sc,
-		d->type,
-		d->name,
-		d->idx,
-		sc->hdr->pack_id,
-		h->multicore_idx,
-		sc->multi_total,
-		sc->multi_bmp,
-		sc->parent->hdr->priority,
-		sc->parent->hdr->soft_limit,
-		sc->parent->hdr->hard_limit,
-		sc->hdr->ip_time,
-		sc->hdr->suggest_time,
-		0,//sc->par_cmd->power_save,
-		sc->ctx,
-		sc->hdr->tcm_force,
-		sc->hdr->tcm_usage,
-		sc->real_tcm_usage,
-		h->boost_val,
-		h->ip_time,
-		ret);
+     params.done = done;
+     params.pid = sc->parent->pid;
+     params.tgid = sc->parent->tgid;
+     params.uid = sc->parent->hdr->uid;
+     params.cmd_id = sc->parent->kid;
+     params.sc_idx = sc->idx;
+     params.num_sc = sc->parent->hdr->num_sc;
+     params.type = d->type;
+     params.dev_name = d->name;
+     params.dev_idx = d->idx;
+     params.pack_id = sc->hdr->pack_id;
+     params.multicore_idx = h->multicore_idx;
+     params.exec_core_num = sc->multi_total;
+     params.exec_core_bitmap = sc->multi_bmp;
+     params.priority = sc->parent->hdr->priority;
+     params.soft_limit = sc->parent->hdr->soft_limit;
+     params.hard_limit = sc->parent->hdr->hard_limit;
+     params.exec_time = sc->driver_time;
+     params.suggest_time = sc->hdr->suggest_time;
+     params.power_save = 0;
+     params.ctx_id = sc->ctx;
+     params.tcm_force = sc->hdr->tcm_force;
+     params.tcm_usage = sc->hdr->tcm_usage;
+     params.tcm_real_usage = sc->real_tcm_usage;
+     params.boost = h->boost_val;
+     params.ip_time = h->ip_time;
+     params.ret = ret;
+     trace_mdw_cmd(&params);
 }
 #undef MDW_EXEC_PRINT
 
