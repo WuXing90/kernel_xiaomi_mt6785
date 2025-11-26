@@ -24,7 +24,7 @@
 
 TRACE_EVENT(mdla_polling,
 	TP_PROTO(int core,
-		u32 c[MDLA_PMU_COUNTERS]),
+		u32 *c),
 	TP_ARGS(core, c),
 	TP_STRUCT__entry(
 		__field(int, core)
@@ -102,5 +102,3 @@ TRACE_EVENT(mdla_cmd_leave,
 #undef TRACE_INCLUDE_FILE
 #define TRACE_INCLUDE_FILE met_mdlasys_events
 #include <trace/define_trace.h>
-
-
