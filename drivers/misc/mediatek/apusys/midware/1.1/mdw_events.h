@@ -24,54 +24,104 @@
 	"power_save=%d,mem_ctx=%u,tcm_force=%d,tcm_usage=0x%x,"\
 	"tcm_real_usage=0x%x,boost=%u,ip_time=%u,ret=%d\n"\
 
+#ifndef _MDW_CMD_TRACE_H_
+#define _MDW_CMD_TRACE_H_
+ 
+ struct mdw_cmd_params {
+     uint32_t done;
+     pid_t pid;
+     pid_t tgid;
+     uint64_t uid;
+     uint64_t cmd_id;
+     int sc_idx;
+     uint32_t num_sc;
+     int type;
+     char *dev_name;
+     int dev_idx;
+     uint32_t pack_id;
+     uint32_t multicore_idx;
+     uint32_t exec_core_num;
+     uint64_t exec_core_bitmap;
+     unsigned char priority;
+     uint32_t soft_limit;
+     uint32_t hard_limit;
+     uint32_t exec_time;
+     uint32_t suggest_time;
+     unsigned char power_save;
+     uint32_t ctx_id;
+     unsigned char tcm_force;
+     uint32_t tcm_usage;
+     uint32_t tcm_real_usage;
+     uint32_t boost;
+     uint32_t ip_time;
+     int ret;
+ };
+ #endif
+
 TRACE_EVENT(mdw_cmd,
-	TP_PROTO(uint32_t done, pid_t pid, pid_t tgid, uint64_t uid,
-		uint64_t cmd_id, int sc_idx, uint32_t num_sc, int type,
-		char *dev_name, int dev_idx, uint32_t pack_id,
-		uint32_t multicore_idx, uint32_t exec_core_num,
-		uint64_t exec_core_bitmap, unsigned char priority,
-		uint32_t soft_limit, uint32_t hard_limit,
-		uint32_t exec_time, uint32_t suggest_time,
-		unsigned char power_save, uint32_t ctx_id,
-		unsigned char tcm_force, uint32_t tcm_usage,
-		uint32_t tcm_real_usage, uint32_t boost, uint32_t ip_time,
-		int ret
-		),
-	TP_ARGS(done, pid, tgid, uid, cmd_id, sc_idx, num_sc, type, dev_name,
-		dev_idx, pack_id, multicore_idx, exec_core_num,
-		exec_core_bitmap, priority, soft_limit, hard_limit,
-		exec_time, suggest_time, power_save, ctx_id, tcm_force,
-		tcm_usage, tcm_real_usage, boost, ip_time, ret
-		),
-	TP_STRUCT__entry(
-		__field(uint32_t, done)
-		__field(pid_t, pid)
-		__field(pid_t, tgid)
-		__field(uint64_t, uid)
-		__field(uint64_t, cmd_id)
-		__field(int, sc_idx)
-		__field(uint32_t, num_sc)
-		__field(int, type)
-		__array(char, dev_name, MDW_DEV_NAME_SIZE)
-		__field(int, dev_idx)
-		__field(uint32_t, pack_id)
-		__field(uint32_t, multicore_idx)
-		__field(uint32_t, exec_core_num)
-		__field(uint64_t, exec_core_bitmap)
-		__field(unsigned char, priority)
-		__field(uint32_t, soft_limit)
-		__field(uint32_t, hard_limit)
-		__field(uint32_t, exec_time)
-		__field(uint32_t, suggest_time)
-		__field(unsigned char, power_save)
-		__field(uint32_t, ctx_id)
-		__field(unsigned char, tcm_force)
-		__field(uint32_t, tcm_usage)
-		__field(uint32_t, tcm_real_usage)
-		__field(uint32_t, boost)
-		__field(uint32_t, ip_time)
-		__field(uint32_t, ret)
-	),
+    TP_PROTO(struct mdw_cmd_params *p),
+    TP_ARGS(p),
+
+    TP_STRUCT__entry(
+        __field(uint32_t, done)
+        __field(pid_t, pid)
+        __field(pid_t, tgid)
+        __field(uint64_t, uid)
+        __field(uint64_t, cmd_id)
+        __field(int, sc_idx)
+        __field(uint32_t, num_sc)
+        __field(int, type)
+        __array(char, dev_name, MDW_DEV_NAME_SIZE)
+        __field(int, dev_idx)
+        __field(uint32_t, pack_id)
+        __field(uint32_t, multicore_idx)
+        __field(uint32_t, exec_core_num)
+        __field(uint64_t, exec_core_bitmap)
+        __field(unsigned char, priority)
+        __field(uint32_t, soft_limit)
+        __field(uint32_t, hard_limit)
+        __field(uint32_t, exec_time)
+        __field(uint32_t, suggest_time)
+        __field(unsigned char, power_save)
+        __field(uint32_t, ctx_id)
+        __field(unsigned char, tcm_force)
+        __field(uint32_t, tcm_usage)
+        __field(uint32_t, tcm_real_usage)
+        __field(uint32_t, boost)
+        __field(uint32_t, ip_time)
+        __field(int, ret)
+    ),
+
+    TP_fast_assign(
+        __entry->done = p->done;
+        __entry->pid = p->pid;
+        __entry->tgid = p->tgid;
+        __entry->uid = p->uid;
+        __entry->cmd_id = p->cmd_id;
+        __entry->sc_idx = p->sc_idx;
+        __entry->num_sc = p->num_sc;
+        __entry->type = p->type;
+        if (snprintf(__entry->dev_name, MDW_DEV_NAME_SIZE, "%s", p->dev_name) < 0)
+            return;
+        __entry->dev_idx = p->dev_idx;
+        __entry->pack_id = p->pack_id;
+        __entry->multicore_idx = p->multicore_idx;
+        __entry->exec_core_num = p->exec_core_num;
+        __entry->exec_core_bitmap = p->exec_core_bitmap;
+        __entry->priority = p->priority;
+        __entry->soft_limit = p->soft_limit;
+        __entry->hard_limit = p->hard_limit;
+        __entry->exec_time = p->exec_time;
+        __entry->suggest_time = p->suggest_time;
+        __entry->power_save = p->power_save;
+        __entry->ctx_id = p->ctx_id;
+        __entry->tcm_force = p->tcm_force;
+        __entry->tcm_usage = p->tcm_usage;
+        __entry->tcm_real_usage = p->tcm_real_usage;
+        __entry->boost = p->boost;
+        __entry->ip_time = p->ip_time;
+        __entry->ret = p->ret;
+    ),
 	TP_fast_assign(
 		__entry->done = done;
 		__entry->pid = pid;
@@ -103,6 +153,7 @@ TRACE_EVENT(mdw_cmd,
 		__entry->done = ip_time;
 		__entry->ret = ret;
 	),
+
 	TP_printk(
 		MDW_TAG_CMD_PRINT,
 		__entry->done == 0 ? "start":"end",
@@ -145,4 +196,3 @@ TRACE_EVENT(mdw_cmd,
 #undef TRACE_INCLUDE_FILE
 #define TRACE_INCLUDE_FILE mdw_events
 #include <trace/define_trace.h>
-
